@@ -1,0 +1,53 @@
+services:
+  frontend:
+    image: mern-frontend
+    container_name: mern-frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    networks:
+      - full_stack_network
+
+  backend:
+    image: mern-backend
+    container_name: mern-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/e-commerce
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    volumes:
+      - product_images:/app/images  # ✅ Image volume here
+    networks:
+      - full_stack_network
+
+  admin:
+    image: mern-admin
+    container_name: mern-admin
+    ports:
+      - "4001:80"
+    restart: unless-stopped
+    networks:
+      - full_stack_network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    volumes:
+      - mongo_data:/data/db  # ✅ Correct MongoDB volume
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    networks:
+      - full_stack_network
+
+volumes:
+  mongo_data:  # ✅ MongoDB data
+  product_images:  # ✅ Image uploads
+    external: true  # ✅ External volume for images
+
+networks:
+  full_stack_network:
+    driver: bridge
